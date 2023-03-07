@@ -94,7 +94,6 @@ export const getSingleProjectDetails = asyncHandler(async function (req, res) {
     }
   });
   
-
 /* Update the data */
 
 export const updateProjectDetails = asyncHandler(async function (req, res) {
@@ -136,7 +135,6 @@ export const updateProjectDetails = asyncHandler(async function (req, res) {
       });
     }
   });
-  
 
 /* Delete the data */
 
@@ -163,14 +161,3 @@ export const deleteProjectDetails = asyncHandler(async function (req, res) {
       res.status(500).json({ message: 'provide the valid id or code', error: error });
     }
   });
-  
-
-/* 
-.populate({
-    path: 'comments',
-    populate: {
-      path: 'name',
-      model: 'employeeDetails',
-      select: 'fullName'
-    }
-  }) */
