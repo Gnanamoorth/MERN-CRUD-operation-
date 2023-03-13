@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import moment from 'moment';
+import Navbar from '../navbar/navbar.jsx'
+import Withauth from './withauth.jsx'
+
 
 export const ProjectCard = ({ project, onClick }) => {
   const getRandomColor = () => {
@@ -10,6 +13,7 @@ export const ProjectCard = ({ project, onClick }) => {
         color += letters[Math.floor(Math.random() * 8)];
     }
     return color;
+   
 }
   return (
     <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
@@ -85,7 +89,7 @@ export const ProjectDetails = ({ project, onClose }) => {
         </p>
       </div>
       <button
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4"
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 hover:cursor-pointer"
         onClick={onClose}
       >
         Close
@@ -97,7 +101,30 @@ export const ProjectDetails = ({ project, onClose }) => {
 const Project = () => {
   const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [Name,setName]=useState("")
 
+useEffect(()=>{
+  const storedName = localStorage.getItem('name');
+  if (storedName) {
+    setName(storedName);
+  }
+  const now =new Date()
+  const hours =now.getHours()
+  let greeting = '';
+  if (hours >= 5 && hours < 12) {
+    greeting = 'Good morning';
+  } else if (hours >= 12 && hours < 18) {
+    greeting = 'Good afternoon';
+  } else {
+    greeting = 'Good evening';
+  }
+  setName(`${greeting}, ${storedName || ''}`);
+},[])
+//token saved
+  const token = localStorage.getItem('token');
+  if (token) {
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  }
   useEffect(() => {
     const fetchData = async () => {
       const result = await axios.get('http://localhost:3000/projects/');
@@ -113,11 +140,13 @@ const Project = () => {
   const handleProjectClose = () => {
     setSelectedProject(null);
   };
-
+const name =localStorage.getItem('name')
   return (
+    <> <Navbar/>
+    {!selectedProject&&( <p className='absolute mt-[110px]'>{Name}, welcome to my app!</p>)}
     <div className="flex flex-col items-center justify-center h-screen">
       {projects.length === 0 ? (
-        <h2>Welcome To You</h2>
+        <h2>Welcome To {name}</h2>
       ) : (
         <>
           {selectedProject ? (
@@ -136,7 +165,8 @@ const Project = () => {
         </>
       )}
     </div>
+    </>
   );
 };
 
-export default Project;
+export default Withauth(Project);

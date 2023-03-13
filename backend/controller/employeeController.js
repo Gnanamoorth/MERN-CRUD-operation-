@@ -1,8 +1,11 @@
-import mongoose from "mongoose";
 import EmployeeSchema from '../model/employeeSchema.js'
 
 import asyncHandler from 'express-async-handler';
+import bcrypt from 'bcrypt'
+const saltRounds = 10;
+import jwt from 'jsonwebtoken';
 
+//Register 
 
 export const registerEmployee =asyncHandler(async function(req,res){
     try {
@@ -14,7 +17,9 @@ export const registerEmployee =asyncHandler(async function(req,res){
         message: 'Employee already exists'
       });
     }
-        const employee =await EmployeeSchema.create(req.body)
+    const password =await bcrypt.hash(req.body.password,saltRounds)
+    const datas={...req.body,password}
+        const employee =await EmployeeSchema.create(datas)
         await res.status(201).json({
             "success": true,
             "data": { employee },
@@ -29,6 +34,31 @@ export const registerEmployee =asyncHandler(async function(req,res){
     }
 })
 
+//Login
+export const loginEmployee = asyncHandler(async function(req, res) {
+    try {
+      const user = await EmployeeSchema.findOne({ employeeId: req.body.employeeId });
+      if (!user) {
+        return res.status(404).json({ "message": "Enter your valid ID" });
+      }
+      if (!(await bcrypt.compare(req.body.password, user.password))) {
+        return res.status(401).json({ "message": "Please enter the correct password" });
+      }
+       // set token expiration time to 5 minute from current time
+    const expiresIn = 10*60; // 5 minute in seconds
+      const token = jwt.sign(user.toJSON(), "verify-passwords",{ expiresIn});
+      return res.status(200).json({
+        user,
+        token,
+        message: "Successfully logged in"
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ message: "Please enter the both feilds correctly" });
+    }
+  });
+  
+//Get Employee
 export const allEmployees=asyncHandler(async function(req,res){
     try {
         const employee= await EmployeeSchema.find()

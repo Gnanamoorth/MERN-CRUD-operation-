@@ -4,7 +4,8 @@ const {Schema} = mongoose;
 const user = new Schema({
     name: {
         type: String,
-        required: true
+        required: true,
+
     },
     employeeId:{
         type: Number,
@@ -12,8 +13,8 @@ const user = new Schema({
     },
     email: {
         type: String,
-        lowercase: true,
         required: true,
+        lowerCase:true,
         trim: true
     },
     password: {

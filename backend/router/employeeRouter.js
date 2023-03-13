@@ -1,9 +1,11 @@
 import express from 'express';
 const employee = express();
-import {registerEmployee,allEmployees} from '../controller/employeeController.js'
+import {registerEmployee,loginEmployee,allEmployees} from '../controller/employeeController.js'
 
 
 employee.post('/register',registerEmployee)
+employee.post('/login',loginEmployee)
+
 employee.get('/employees',allEmployees)
 
 

@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState ,useEffect} from "react";
 import axios from "axios";
-
+import Navbar from '../navbar/navbar.jsx'
+import withAuth from "./withauth.jsx";
 
 const NewProjectForm = () => {
   const [name, setName] = useState("");
@@ -16,6 +17,23 @@ const NewProjectForm = () => {
   const [updatedBy, setUpdatedBy] = useState("");
   const [message, setMessage] = useState('');
   const [showForm, setShowForm] = useState(false);
+  //store the token 
+  const token = localStorage.getItem('token');
+  if (token) {
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  }
+  
+  useEffect(() => {
+    const storedCreatedBy = localStorage.getItem('name');
+    if (storedCreatedBy) {
+      setCreatedBy(storedCreatedBy);
+    }
+
+    const storedUpdatedBy = localStorage.getItem('name');
+    if (storedUpdatedBy) {
+      setUpdatedBy(storedUpdatedBy);
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,11 +51,26 @@ const NewProjectForm = () => {
         createdBy,
         updatedBy,
       });
+
       if (res.status === 201) {
         setMessage(res.data.message);
         setTimeout(() => {
           window.location.href = '/projects';
         }, 2000);
+        const projectDetails = {
+          name,
+          code,
+          status,
+          members,
+          startDate,
+          endDate,
+          description,
+          attachements,
+          logo,
+          createdBy,
+          updatedBy,
+        };
+        localStorage.setItem('projectDetails', JSON.stringify(projectDetails));
       } else if (res.status === 409) {
         setMessage(res.data.error);
         console.log(res.data.error);
@@ -55,7 +88,7 @@ const NewProjectForm = () => {
     setShowForm(!showForm);
     setMessage('');
   }
- 
+
   const handleGoBack = () => {
     setShowForm(false);
   }
@@ -69,14 +102,13 @@ const NewProjectForm = () => {
     setDescription("");
     setAttachements([]);
     setLogo("");
-    setCreatedBy("");
-    setUpdatedBy("");
     setMessage("");
     setShowForm(false);
   }
   return (
     <div>
-      <button className="fixed top-1/2 left-[45%] w-32 h-16 rounded-full bg-blue-500 text-white p-3  shadow-lg hover:bg-blue-600" onClick={toggleForm}>
+      <Navbar/> 
+      <button className="fixed top-1/2 left-[45%] w-32 h-16 rounded-full bg-blue-500 text-white p-3  shadow-lg hover:bg-blue-600 hover:cursor-pointer" onClick={toggleForm}>
       <p className="">+ Create Project</p>
     </button>
     {showForm &&(
@@ -175,7 +207,6 @@ const NewProjectForm = () => {
            <input
              type="text"  
              value={createdBy}
-             onChange={(e) => setCreatedBy(e.target.value)}
              className="mt-1 block w-full rounded-md bg-gray-100 border-transparent focus:border-gray-500 focus:bg-white focus:ring-0"
            />
          </div>
@@ -184,13 +215,12 @@ const NewProjectForm = () => {
            <input
              type="text"
              value={updatedBy}
-             onChange={(e) => setUpdatedBy(e.target.value)}
              className="mt-1 block w-full rounded-md bg-gray-100 border-transparent focus:border-gray-500 focus:bg-white focus:ring-0"
            />
          </div>
        </div>
-       <button className="bg-red-800 w-20 h-8 text-white" type="reset" onClick={()=>{handleGoBack();reset()}}  >Cancel</button>
-      <button className= "bg-blue-800 w-20 h-8  text-white ml-48" type="submit">Submit</button>
+       <button className="bg-red-800 w-20 h-8 text-white" type="reset hover:cursor-pointer" onClick={()=>{handleGoBack();reset()}}  >Cancel</button>
+      <button className= "bg-blue-800 w-20 h-8  text-white ml-48 hover:cursor-pointer" type="submit">Submit</button>
       {message && <p>{message}</p>}
     </form>
     </div>
@@ -200,4 +230,4 @@ const NewProjectForm = () => {
   );
 };
 
-export default NewProjectForm;
+export default withAuth(NewProjectForm);

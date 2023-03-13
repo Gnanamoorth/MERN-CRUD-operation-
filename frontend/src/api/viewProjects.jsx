@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import moment from 'moment';
+import Navbar from '../navbar/navbar.jsx'
+import withAuth from './withauth.jsx';
 
 const ViewProjects = () => {
     const [project, setProject] = useState("")
@@ -17,7 +19,12 @@ const ViewProjects = () => {
     const [attachements, setAttachements] = useState([]);
     const [logo, setLogo] = useState("");
     const [updatedBy, setUpdatedBy] = useState("");
-
+    //store the token 
+    const token = localStorage.getItem('token');
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
+    
     //get data with specific id or code
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -29,6 +36,7 @@ const ViewProjects = () => {
             setMessage("Please enter a project ID or code");
             return;
         }
+        const storedCreatedBy = localStorage.getItem('name');
         try {
             setProject("");
             const response = await axios.get(`http://localhost:3000/projects/${searchQuery}`);
@@ -44,7 +52,7 @@ const ViewProjects = () => {
             setDescription(response.data.description)
             setAttachements(response.data.attachements)
             setLogo(response.data.logo)
-            setUpdatedBy(response.data.updatedBy)
+            setUpdatedBy(storedCreatedBy)
 
             if (response.status === 200) {
                 setMessage(response.data.message);
@@ -83,7 +91,7 @@ const ViewProjects = () => {
             setMessage("");
         }, 1600);
     }
-
+    
     //Delete method
     const handleDelete = async () => {
         try {
@@ -98,6 +106,9 @@ const ViewProjects = () => {
             } else if (response.status === 404) {
                 setMessage(response.data.error);
             }
+            else if (response.status === 403) {
+                setMessage(response.data.error);
+            }
         } catch (error) {
             setMessage(error.response.data.message);
         }
@@ -106,6 +117,7 @@ const ViewProjects = () => {
         }, 2000);
     }
     return (
+        <><Navbar/>
         <div className='top-28 relative z-1'>
             <div>
             {!isEditing && (
@@ -116,7 +128,7 @@ const ViewProjects = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <button type="submit">Search</button>
+            <button className='hover:cursor-pointer' type="submit">Search</button>
             {message && <p>{message}</p>}
         </form>
     )}
@@ -223,14 +235,13 @@ const ViewProjects = () => {
                                             <input
                                                 type="text"
                                                 value={updatedBy}
-                                                onChange={(e) => setUpdatedBy(e.target.value)}
                                                 className="mt-1 block w-full rounded-md bg-gray-100 border-transparent focus:border-gray-500 focus:bg-white focus:ring-0"
                                             />
                                         </div>
                                     </div>
-                                    <button className="bg-red-800 w-20 h-8 text-white" type='button' onClick={(e) => { e.preventDefault(); handleDelete();  }}>Delete</button>
+                                    <button className="bg-red-800 w-20 h-8 text-white hover:cursor-pointer" type='button' onClick={(e) => { e.preventDefault(); handleDelete();  }}>Delete</button>
                                    
-                                    <button className="bg-blue-800 w-20 h-8  text-white ml-48" type="submit">Update</button>
+                                    <button className="bg-blue-800 w-20 h-8  text-white ml-48 hover:cursor-pointer" type="submit">Update</button>
                                     {message && <p>{message}</p>}
                                 </form>
                             </div>
@@ -300,7 +311,7 @@ const ViewProjects = () => {
                                         {project.updatedAt}
                                     </p>
                                 </div>
-                                <button className='bg-blue-500 h-9 w-20 ml-[260px] mt-5 text-center hover:bg-orange-500 rounded-full' onClick={() => setIsEditing(true)}>Edit</button>
+                                <button className='bg-blue-500 h-9 w-20 ml-[260px] mt-5 text-center hover:bg-orange-500 rounded-full hover:cursor-pointer' onClick={() => setIsEditing(true)}>Edit</button>
                             </div>
                         )}
                     </div>
@@ -311,10 +322,11 @@ const ViewProjects = () => {
                 )}
             </div>
         </div>
+        </>
     );
 };
 
-export default ViewProjects;
+export default withAuth(ViewProjects);
 
 
 

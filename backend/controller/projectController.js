@@ -94,6 +94,7 @@ export const getSingleProjectDetails = asyncHandler(async function (req, res) {
     }
   });
   
+
 /* Update the data */
 
 export const updateProjectDetails = asyncHandler(async function (req, res) {
@@ -135,29 +136,40 @@ export const updateProjectDetails = asyncHandler(async function (req, res) {
       });
     }
   });
+  
 
 /* Delete the data */
 
 export const deleteProjectDetails = asyncHandler(async function (req, res) {
-    try {
-      const idOrName = req.params.idOrName;
-  
-      let project;
-  
-      if (idOrName.match(/^[0-9a-fA-F]{24}$/)) {
-        project = await projectSchema.findOne({ _id: idOrName });
-      } else {
-        project = await projectSchema.findOne({ code: idOrName });
-      }
-  
-      if (!project) {
-        res.status(404).json({ message: 'Project not found' });
-        return;
-      }
-  
-      await projectSchema.deleteOne({ _id: project._id });
-      res.status(200).json({ message: 'Project deleted successfully' });
-    } catch (error) {
-      res.status(500).json({ message: 'provide the valid id or code', error: error });
+  try {
+    const idOrName = req.params.idOrName;
+
+    let project;
+    if (idOrName.match(/^[0-9a-fA-F]{24}$/)) {
+      project = await projectSchema.findOne({ _id: idOrName });
+    } else {
+      project = await projectSchema.findOne({ code: idOrName });
     }
-  });
+
+    if (!project) {
+      res.status(404).json({ message: 'Project not found' });
+      return;
+    }
+    await projectSchema.deleteOne({ _id: project._id });
+    res.status(200).json({ message: 'Project deleted successfully' });
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ message: 'Provide a valid id or code', error: error });
+  }
+});
+
+
+/* 
+.populate({
+    path: 'comments',
+    populate: {
+      path: 'name',
+      model: 'employeeDetails',
+      select: 'fullName'
+    }
+  }) */

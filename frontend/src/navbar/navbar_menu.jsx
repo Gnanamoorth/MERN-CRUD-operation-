@@ -1,5 +1,11 @@
 export const Menuitems =[
     {
+        url:"/auth/login",
+    },
+    {
+        url:"/auth/signin",
+    },
+    {
         title:"Home",
         url:"/projects",
         cName:"nav-link",

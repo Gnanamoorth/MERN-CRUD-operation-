@@ -3,6 +3,13 @@ import { Menuitems } from "./navbar_menu";
 import './navbar.scss'
 
 function Navbar(){
+    const handelLogout =()=>{
+
+        setTimeout(() => {
+            window.location.href = '/auth/login';
+            localStorage.clear();
+          }, 2100);
+    }
     const imageurl="assests/itTrident-logo.png"
     return (
         <nav className="NavbarItems flex mx-auto">
@@ -17,6 +24,7 @@ function Navbar(){
                     )
                 })}
             </ul>
+            <button onClick={handelLogout}>Logout</button>
         </nav>
     );
 }

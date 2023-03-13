@@ -8,6 +8,7 @@ import employee from './router/employeeRouter.js'
 import Project from './router/projectRouter.js'
 import worklog from './router/worklogRouter.js'
 
+import {authMiddelware} from './midelware/authMiddelware.js'
 
 const port = 3000
 //use for request body 
@@ -19,7 +20,7 @@ server.use(cors());
 server.use('/auth',employee)
 
 //project router
-server.use('/projects', Project)
+server.use('/projects',authMiddelware, Project)
 
 //Worklog Router
 server.use('/worklog', worklog)
